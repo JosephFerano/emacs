@@ -90,6 +90,14 @@
 
 (require 'dired)
 (setq ls-lisp-dirs-first t)
+(put 'dired-find-alternate-file 'disabled nil)
+(add-hook 'dired-mode-hook
+	  (lambda ()
+	    (evil-define-key 'normal 'dired-mode-map (kbd "-")
+	      (lambda () (interactive) (find-alternate-file "..")))
+	    (evil-define-key 'normal 'dired-mode-map (kbd "<return>")
+	      (lambda () (interactive) (dired-find-alternate-file)))))
+
 
 (require 'dashboard)
 (dashboard-setup-startup-hook)
