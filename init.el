@@ -5,7 +5,8 @@
 ;; General Settings
 (setq inhibit-startup-screen t)
 (setq vc-follow-symlinks t)
-(setq backup-directory-alist `((".*" . ,temporary-file-directory)))
+(setq backup-directory-alist `((".*" . "~/.emacs.d/saves"))
+      delete-old-versions t)
 (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
 (setq delete-by-moving-to-trash t)
 (setq user-full-name "Joseph Ferano"
@@ -38,7 +39,7 @@
   (invert-face 'mode-line)
   (run-with-timer 0.1 nil #'invert-face 'mode-line))
 
-(load-theme 'doom-gruvbox +1)
+(load-theme 'doom-moonlight +1)
 
 (toggle-frame-fullscreen)
 (global-hl-line-mode +1)
@@ -79,23 +80,33 @@
  ;; If there is more than one, they won't work right.
  '(ansi-color-faces-vector
    [default default default italic underline success warning error])
+ '(beacon-color "#f2777a")
+ '(custom-safe-themes
+   '("aaa4c36ce00e572784d424554dcc9641c82d1155370770e231e10c649b59a074" default))
+ '(flycheck-color-mode-line-face-to-color 'mode-line-buffer-id)
+ '(frame-background-mode 'dark)
  '(package-selected-packages
-   '(ahk-mode magit rainbow-delimiters csharp-mode doom-themes marginalia eglot fsharp-mode selectrum-prescient prescient selectrum avy evil-commentary evil-embrace evil-snipe evil-collection evil-surround undo-tree which-key dashboard)))
+   '(ahk-mode magit rainbow-delimiters csharp-mode doom-themes marginalia eglot fsharp-mode selectrum-prescient prescient selectrum avy evil-commentary evil-embrace evil-snipe evil-collection evil-surround undo-tree which-key dashboard))
+ '(window-divider-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(magit-diff-hunk-heading-highlight ((t (:extend t :background "cornflower blue" :foreground "#212337" :weight bold)))))
 
 (require 'dired)
 (setq ls-lisp-dirs-first t)
 (put 'dired-find-alternate-file 'disabled nil)
+(defun dired-find-file-other-window ()
+    "In Dired, visit this file or directory in another window."
+    (interactive)
+    (find-file-other-window (dired-get-file-for-visit)))
 (add-hook 'dired-mode-hook
 	  (lambda ()
-	    (evil-define-key 'normal 'dired-mode-map (kbd "-")
+	    (evil-define-key 'normal dired-mode-map (kbd "-")
 	      (lambda () (interactive) (find-alternate-file "..")))
-	    (evil-define-key 'normal 'dired-mode-map (kbd "<return>")
+	    (evil-define-key 'normal dired-mode-map (kbd "<return>")
 	      (lambda () (interactive) (dired-find-alternate-file)))))
 
 
@@ -119,6 +130,7 @@
 (evil-set-leader 'normal (kbd "SPC"))
 (evil-define-key 'normal 'global (kbd "<leader>fs") 'save-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>fi") 'edit-init)
+(evil-define-key 'normal 'global (kbd "<leader>bb") 'switch-to-buffer)
 
 (require 'evil-surround)
 (global-evil-surround-mode 1)
@@ -150,6 +162,15 @@
   (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit))))
 (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
 
+(setq recentf-max-menu-items 50)
+(defun recentf-open-files+ ()
+  "Use `completing-read' to open a recent file."
+  (interactive)
+  (let ((files (mapcar 'abbreviate-file-name recentf-list)))
+    (find-file (completing-read "Find recent file: " files nil t))))
+
+(evil-define-key 'normal 'global (kbd "<leader>fr") 'recentf-open-files+)
+
 (require 'smartparens)
 (smartparens-global-mode +1)
 (show-paren-mode +1)
@@ -162,31 +183,15 @@
 ;; magit
 ;; projectile
 ;; Hydra (we can use it for some of the ideas I've had about repeating and arranging stuff)
+;; CTRLF (figure out if it does anything interesting)
 
-;; (eval-when-compile (require 'use-package))
-;; (custom-set-variables
-;; custom-set-variables was added by Custom.
-;; If you edit it by Hand, you could mess it up, so be careful.
-;; Your init file should contain only one such instance.
-;; If there is more than one, they won't work right.
-;;  '(evil-want-Y-yank-to-eol t)
-;;  '(package-selected-packages
-;;    (quote
-;;     (use-package
-;;      linum-relative
-;;      evil
 ;;      helpful
-;;      dashboard
 ;;    exec-path-from-shell
 ;;    company-quickhelp
-;;    ivy
 ;;    color-theme-sanityinc-tomorrow
-;;    zenburn-theme
-;;    sublime-themes
 ;;    flycheck
 ;;    general
 ;;    evil-mc
-;;    evil-commentary
 ;;    markdown-preview-mode
 ;;    markdown-mode
 ;;    company-mode
@@ -195,10 +200,6 @@
 ;;    sly
 ;;      )))
 ;;  '(send-mail-function (quote smtpmail-send-it)))
-
-;; (setq use-package-always-insure t)
-
-;; (load-theme 'sanityinc-tomorrow-eighties t)
 
 ;;(use-package general
 ;;  :init
@@ -219,12 +220,6 @@
 ;; (setq inferior-lisp-program "/usr/bin/sbcl")
 ;; (setq slime-contribs '(slime-fancy slime-company))
 
-;; (use-package ivy
-;;   :config
-;;   (setq ivy-re-builders-alist
-;;	'((t . ivy--regex-plus)))
-;;   :init (ivy-mode))
-
 ;; (use-package recentf-mode
 ;;   :init
 ;;   (setq recentf-max-menu-items 50)
@@ -233,28 +228,6 @@
 ;;   (add-hook 'find-file-hook 'recentf-save-list)
 ;;   :general
 ;;   (general-nmap :prefix leader "fr" 'recentf-open-files))
-
-;;(use-package avy
-;;  :config
-;;    (setq avy-timeout-seconds 0.23)
-;;    (setq avy-keys '(?a ?s ?d ?f ?w ?e ?r ?u ?i ?o ?h ?j ?k ?l))
-;;    (setq avy-background t)
-;;    (setq avy-style 'at-full)
-;;  :general
-;;  (general-nmap ";" 'avy-goto-char-timer)
-;;  (general-nmap ",w" 'avy-goto-word-0-below)
-;;  (general-nmap ",b" 'avy-goto-word-0-above))
-
-;; (use-package evil-snipe
-;;   :init
-;;   (setq evil-snipe-override-evil-repeat-keys nil)
-;;   (evil-snipe-override-mode))
-;;
-;; (use-package evil-surround
-;;   :config
-;;   (global-evil-surround-mode 1))
-;;
-;; (use-package evil-commentary :init (evil-commentary-mode))
 
 ; (use-package company
 ;   :init
