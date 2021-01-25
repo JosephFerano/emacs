@@ -29,7 +29,7 @@
 (setq visible-bell nil ring-bell-function 'flash-mode-line)
 (setq-default display-line-numbers 'relative)
 (dolist (mode '(org-mode-hook term-mode-hook eshell-mode-hook dired-mode-hook shell-mode-hook magit-mode-hook))
-	      (add-hook mode (lambda () (display-line-numbers-mode 0))))
+              (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 (setq scroll-margin 0
       scroll-conservatively 100000
@@ -47,6 +47,7 @@
 
 ;; Text Settings
 (setq tab-width 4)
+(setq-default indent-tabs-mode nil)
 
 (defun edit-init()
   "Edit 'init.el' quickly"
@@ -95,28 +96,6 @@
  ;; If there is more than one, they won't work right.
  '(magit-diff-hunk-heading-highlight ((t (:extend t :background "cornflower blue" :foreground "#212337" :weight bold)))))
 
-(require 'dired)
-(setq ls-lisp-dirs-first t)
-(put 'dired-find-alternate-file 'disabled nil)
-(defun dired-find-file-other-window ()
-    "In Dired, visit this file or directory in another window."
-    (interactive)
-    (find-file-other-window (dired-get-file-for-visit)))
-(add-hook 'dired-mode-hook
-	  (lambda ()
-	    (evil-define-key 'normal dired-mode-map (kbd "-")
-	      (lambda () (interactive) (find-alternate-file "..")))
-	    (evil-define-key 'normal dired-mode-map (kbd "<return>")
-	      (lambda () (interactive) (dired-find-alternate-file)))))
-
-
-(require 'dashboard)
-(dashboard-setup-startup-hook)
-
-(require 'which-key)
-(setq which-key-idle-delay 0.3)
-(which-key-mode)
-
 (setq evil-want-keybinding nil)
 (setq evil-undo-system 'undo-tree)
 (setq evil-want-C-u-scroll t)
@@ -127,10 +106,43 @@
   (evil-collection-init))
 (evil-mode)
 
+(define-key key-translation-map (kbd "ESC") (kbd "C-g"))
+
+(require 'dired)
+(setq ls-lisp-dirs-first t)
+(put 'dired-find-alternate-file 'disabled nil)
+(defun dired-find-file-other-window ()
+    "In Dired, visit this file or directory in another window."
+    (interactive)
+    (find-file-other-window (dired-get-file-for-visit)))
+(add-hook 'dired-mode-hook
+          (lambda ()
+            (evil-define-key 'normal dired-mode-map (kbd "-")
+              (lambda () (interactive) (find-alternate-file "..")))
+            (evil-define-key 'normal dired-mode-map (kbd "<return>")
+              (lambda () (interactive) (dired-find-alternate-file)))))
+
+(evil-define-key 'normal 'global (kbd "-") 'dired-jump)
+
+(require 'dashboard)
+(dashboard-setup-startup-hook)
+
+(require 'which-key)
+(setq which-key-idle-delay 0.3)
+(which-key-mode)
+
 (evil-set-leader 'normal (kbd "SPC"))
 (evil-define-key 'normal 'global (kbd "<leader>fs") 'save-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>fi") 'edit-init)
-(evil-define-key 'normal 'global (kbd "<leader>bb") 'switch-to-buffer)
+(evil-define-key 'normal 'global (kbd "<leader>bl") 'switch-to-buffer)
+
+(defun joe/switch-to-previous-buffer ()
+  "Switch to previously open buffer.
+Repeated invocations toggle between the two most recently open buffers."
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+
+(evil-define-key 'normal 'global (kbd "<leader>bb") 'joe/switch-to-previous-buffer)
 
 (require 'evil-surround)
 (global-evil-surround-mode 1)
