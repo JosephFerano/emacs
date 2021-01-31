@@ -40,8 +40,6 @@
   (invert-face 'mode-line)
   (run-with-timer 0.1 nil #'invert-face 'mode-line))
 
-(load-theme 'doom-moonlight +1)
-
 (global-hl-line-mode +1)
 (column-number-mode +1)
 
@@ -95,6 +93,12 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(magit-diff-hunk-heading-highlight ((t (:extend t :background "cornflower blue" :foreground "#212337" :weight bold)))))
+
+(dolist (p package-selected-packages)
+    (when (not (package-installed-p p))
+	(package-install p)))
+
+(load-theme 'doom-moonlight +1)
 
 (setq evil-want-keybinding nil)
 (setq evil-undo-system 'undo-tree)
