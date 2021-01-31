@@ -19,6 +19,7 @@
 (set-default-coding-systems 'utf-8)
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
+(define-key key-translation-map (kbd "ESC") (kbd "C-g"))
 
 ;; Visuals
 (scroll-bar-mode -1)
@@ -35,13 +36,12 @@
       scroll-conservatively 100000
       scroll-preserve-screen-position 1)
 
-(defun flash-mode-line ()
+(defun joe/flash-mode-line ()
   (invert-face 'mode-line)
   (run-with-timer 0.1 nil #'invert-face 'mode-line))
 
 (load-theme 'doom-moonlight +1)
 
-(toggle-frame-fullscreen)
 (global-hl-line-mode +1)
 (column-number-mode +1)
 
@@ -49,7 +49,7 @@
 (setq tab-width 4)
 (setq-default indent-tabs-mode nil)
 
-(defun edit-init()
+(defun joe/edit-init()
   "Edit 'init.el' quickly"
   (interactive)
   (find-file user-init-file))
@@ -106,12 +106,10 @@
   (evil-collection-init))
 (evil-mode)
 
-(define-key key-translation-map (kbd "ESC") (kbd "C-g"))
-
 (require 'dired)
 (setq ls-lisp-dirs-first t)
 (put 'dired-find-alternate-file 'disabled nil)
-(defun dired-find-file-other-window ()
+(defun joe/dired-find-file-other-window ()
     "In Dired, visit this file or directory in another window."
     (interactive)
     (find-file-other-window (dired-get-file-for-visit)))
@@ -119,6 +117,8 @@
           (lambda ()
             (evil-define-key 'normal dired-mode-map (kbd "-")
               (lambda () (interactive) (find-alternate-file "..")))
+            (evil-define-key 'normal dired-mode-map (kbd "SPC")
+              (lambda () (interactive) (evil-send-leader)))
             (evil-define-key 'normal dired-mode-map (kbd "<return>")
               (lambda () (interactive) (dired-find-alternate-file)))))
 
@@ -131,10 +131,16 @@
 (setq which-key-idle-delay 0.3)
 (which-key-mode)
 
+(which-key-add-keymap-based-replacements evil-normal-state-map
+  "<leader>f" '("Files")
+  "<leader>b" '("Buffers")
+  "<leader>h" '("Help"))
+
 (evil-set-leader 'normal (kbd "SPC"))
 (evil-define-key 'normal 'global (kbd "<leader>fs") 'save-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>fi") 'edit-init)
 (evil-define-key 'normal 'global (kbd "<leader>bl") 'switch-to-buffer)
+(evil-define-key 'normal 'global (kbd "<leader>h") 'help-command)
 
 (defun joe/switch-to-previous-buffer ()
   "Switch to previously open buffer.
@@ -175,7 +181,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
 
 (setq recentf-max-menu-items 50)
-(defun recentf-open-files+ ()
+(defun joe/recentf-open-files+ ()
   "Use `completing-read' to open a recent file."
   (interactive)
   (let ((files (mapcar 'abbreviate-file-name recentf-list)))
