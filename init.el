@@ -111,7 +111,10 @@
 (evil-mode)
 
 (require 'dired)
-(setq ls-lisp-dirs-first t)
+(if (eq system-type 'ms-dos)
+    (setq ls-lisp-dirs-first t)
+    (setq dired-listing-switches "-al --group-directories-first")
+)
 (put 'dired-find-alternate-file 'disabled nil)
 (defun joe/dired-find-file-other-window ()
     "In Dired, visit this file or directory in another window."
