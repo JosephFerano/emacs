@@ -111,7 +111,7 @@
 (evil-mode)
 
 (require 'dired)
-(if (eq system-type 'ms-dos)
+(if (eq system-type 'windows-nt)
     (setq ls-lisp-dirs-first t)
     (setq dired-listing-switches "-al --group-directories-first")
 )
