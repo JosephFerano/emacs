@@ -27,7 +27,11 @@
 (menu-bar-mode -1)
 (tooltip-mode -1)
 
-(setq visible-bell nil ring-bell-function 'flash-mode-line)
+(defun joe/flash-mode-line ()
+  (invert-face 'mode-line)
+  (run-with-timer 0.1 nil #'invert-face 'mode-line))
+
+(setq visible-bell nil ring-bell-function 'joe/flash-mode-line)
 (setq-default display-line-numbers 'relative)
 (dolist (mode '(org-mode-hook term-mode-hook eshell-mode-hook dired-mode-hook shell-mode-hook magit-mode-hook))
               (add-hook mode (lambda () (display-line-numbers-mode 0))))
@@ -35,10 +39,6 @@
 (setq scroll-margin 0
       scroll-conservatively 100000
       scroll-preserve-screen-position 1)
-
-(defun joe/flash-mode-line ()
-  (invert-face 'mode-line)
-  (run-with-timer 0.1 nil #'invert-face 'mode-line))
 
 (global-hl-line-mode +1)
 (column-number-mode +1)
@@ -96,7 +96,7 @@
 
 (dolist (p package-selected-packages)
     (when (not (package-installed-p p))
-	(package-install p)))
+        (package-install p)))
 
 (load-theme 'doom-moonlight +1)
 
@@ -142,9 +142,15 @@
 
 (evil-set-leader 'normal (kbd "SPC"))
 (evil-define-key 'normal 'global (kbd "<leader>fs") 'save-buffer)
-(evil-define-key 'normal 'global (kbd "<leader>fi") 'edit-init)
+(evil-define-key 'normal 'global (kbd "<leader>fi") 'joe/edit-init)
 (evil-define-key 'normal 'global (kbd "<leader>bl") 'switch-to-buffer)
-(evil-define-key 'normal 'global (kbd "<leader>h") 'help-command)
+(evil-define-key 'normal 'global (kbd "<leader>bk") 'kill-this-buffer)
+(evil-define-key 'normal 'global (kbd "<leader>h")  'help-command)
+
+(evil-define-key 'normal 'global (kbd "C-h")  'evil-window-left)
+(evil-define-key 'normal 'global (kbd "C-j")  'evil-window-down)
+(evil-define-key 'normal 'global (kbd "C-k")  'evil-window-up)
+(evil-define-key 'normal 'global (kbd "C-l")  'evil-window-right)
 
 (defun joe/switch-to-previous-buffer ()
   "Switch to previously open buffer.
@@ -182,16 +188,17 @@ Repeated invocations toggle between the two most recently open buffers."
 (marginalia-mode +1)
 (advice-add #'marginalia-cycle :after
   (lambda () (when (bound-and-true-p selectrum-mode) (selectrum-exhibit))))
-(setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
+(setq marginalia-annotators
+      '(marginalia-annotators-heavy marginalia-annotators-light nil))
 
-(setq recentf-max-menu-items 50)
-(defun joe/recentf-open-files+ ()
+(setq recentf-max-menu-items 100)
+(defun joe/recentf-open-files ()
   "Use `completing-read' to open a recent file."
   (interactive)
   (let ((files (mapcar 'abbreviate-file-name recentf-list)))
     (find-file (completing-read "Find recent file: " files nil t))))
 
-(evil-define-key 'normal 'global (kbd "<leader>fr") 'recentf-open-files+)
+(evil-define-key 'normal 'global (kbd "<leader>fr") 'joe/recentf-open-files)
 
 (require 'smartparens)
 (smartparens-global-mode +1)
@@ -202,17 +209,13 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; expand-region
 ;; company
 ;; flycheck
-;; magit
 ;; projectile
 ;; Hydra (we can use it for some of the ideas I've had about repeating and arranging stuff)
 ;; CTRLF (figure out if it does anything interesting)
 
-;;      helpful
 ;;    exec-path-from-shell
 ;;    company-quickhelp
-;;    color-theme-sanityinc-tomorrow
 ;;    flycheck
-;;    general
 ;;    evil-mc
 ;;    markdown-preview-mode
 ;;    markdown-mode
@@ -223,33 +226,8 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;      )))
 ;;  '(send-mail-function (quote smtpmail-send-it)))
 
-;;(use-package general
-;;  :init
-;;  (general-evil-setup)
-;;  (setq leader "SPC")
-;;  (general-nmap :prefix leader "fi" 'edit-init)
-;;  (general-nmap :prefix leader "h" 'help-command)
-;;  (general-nmap :prefix leader "s" 'isearch-forward)
-;;  (general-nmap "Y" 'evil-yank)
-;;  (general-nmap "C-h" 'evil-window-left)
-;;  (general-nmap "C-j" 'evil-window-down)
-;;  (general-nmap "C-k" 'evil-window-up)
-;;  (general-nmap "C-l" 'evil-window-right)
-;;  (general-nmap "C-s" 'save-buffer))
-
-;; (electric-pair-mode 1)
-
 ;; (setq inferior-lisp-program "/usr/bin/sbcl")
 ;; (setq slime-contribs '(slime-fancy slime-company))
-
-;; (use-package recentf-mode
-;;   :init
-;;   (setq recentf-max-menu-items 50)
-;;   (recentf-mode 1)
-;;   :config
-;;   (add-hook 'find-file-hook 'recentf-save-list)
-;;   :general
-;;   (general-nmap :prefix leader "fr" 'recentf-open-files))
 
 ; (use-package company
 ;   :init
@@ -260,5 +238,3 @@ Repeated invocations toggle between the two most recently open buffers."
 ; (use-package flycheck
 ;   :init
 ;   (global-flycheck-mode))
-
-;;; init.el ends here
