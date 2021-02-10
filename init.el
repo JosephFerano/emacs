@@ -43,9 +43,12 @@
 (global-hl-line-mode +1)
 (column-number-mode +1)
 
+(set-face-attribute 'default nil :height 80)
+
 ;; Text Settings
 (setq tab-width 4)
 (setq-default indent-tabs-mode nil)
+(set-default 'truncate-lines nil)
 
 (defun joe/edit-init()
   "Edit 'init.el' quickly"
@@ -106,9 +109,9 @@
 (setq evil-want-Y-yank-to-eol t)
 (global-undo-tree-mode)
 (require 'evil)
-(when (require 'evil-collection nil t)
-  (evil-collection-init))
 (evil-mode)
+(require 'evil-collection)
+(evil-collection-init)
 
 (require 'dired)
 (if (eq system-type 'windows-nt)
@@ -124,12 +127,18 @@
           (lambda ()
             (evil-define-key 'normal dired-mode-map (kbd "-")
               (lambda () (interactive) (find-alternate-file "..")))
-            (evil-define-key 'normal dired-mode-map (kbd "SPC")
-              (lambda () (interactive) (evil-send-leader)))
+            ;; (evil-define-key 'normal dired-mode-map (kbd "SPC")
+            ;;   (lambda () (interactive) (evil-send-leader)))
             (evil-define-key 'normal dired-mode-map (kbd "<return>")
               (lambda () (interactive) (dired-find-alternate-file)))))
 
 (evil-define-key 'normal 'global (kbd "-") 'dired-jump)
+
+(defun joe/switch-to-previous-buffer ()
+  "Switch to previously open buffer.
+Repeated invocations toggle between the two most recently open buffers."
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
 
 (require 'dashboard)
 (dashboard-setup-startup-hook)
@@ -141,27 +150,39 @@
 (which-key-add-keymap-based-replacements evil-normal-state-map
   "<leader>f" '("Files")
   "<leader>b" '("Buffers")
+  "<leader>d" '("Dired")
+  "<leader>g" '("Git")
+  "<leader>t" '("Tabs")
   "<leader>h" '("Help"))
 
 (evil-set-leader 'normal (kbd "SPC"))
+(evil-define-key 'normal 'global (kbd "<leader>h")  'help-command)
+(evil-define-key 'normal 'global (kbd "<leader>ff") 'bookmark-jump)
 (evil-define-key 'normal 'global (kbd "<leader>fs") 'save-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>fi") 'joe/edit-init)
+(evil-define-key 'normal 'global (kbd "<leader>bb") 'joe/switch-to-previous-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>bl") 'switch-to-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>bk") 'kill-this-buffer)
-(evil-define-key 'normal 'global (kbd "<leader>h")  'help-command)
+(evil-define-key 'normal 'global (kbd "<leader>bi") 'ibuffer)
+(evil-define-key 'normal 'global (kbd "<leader>gg") 'magit-status)
+(evil-define-key 'normal 'global (kbd "<leader>tn") 'tab-new)
 
 (evil-define-key 'normal 'global (kbd "C-h")  'evil-window-left)
 (evil-define-key 'normal 'global (kbd "C-j")  'evil-window-down)
 (evil-define-key 'normal 'global (kbd "C-k")  'evil-window-up)
 (evil-define-key 'normal 'global (kbd "C-l")  'evil-window-right)
+(evil-define-key 'normal 'global (kbd "M-h")  'tab-next)
+(evil-define-key 'normal 'global (kbd "M-l")  'tab-previous)
 
-(defun joe/switch-to-previous-buffer ()
-  "Switch to previously open buffer.
-Repeated invocations toggle between the two most recently open buffers."
-  (interactive)
-  (switch-to-buffer (other-buffer (current-buffer) 1)))
 
-(evil-define-key 'normal 'global (kbd "<leader>bb") 'joe/switch-to-previous-buffer)
+(defvar global-evil-leader-map (make-sparse-keymap))
+(evil-define-key 'normal 'global-evil-leader-map (kbd "SPC") 'evil-send-leader)
+
+(define-minor-mode global-evil-leader-mode
+  "Minor mode to make evil leader blobal"
+  :global t
+  :keymap global-evil-leader-map)
+(global-evil-leader-mode)
 
 (require 'evil-surround)
 (global-evil-surround-mode 1)
