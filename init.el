@@ -43,7 +43,7 @@
 (global-hl-line-mode +1)
 (column-number-mode +1)
 
-(set-face-attribute 'default nil :height 80)
+(set-face-attribute 'default nil :height 90)
 
 ;; Text Settings
 (setq tab-width 4)
@@ -54,6 +54,19 @@
   "Edit 'init.el' quickly"
   (interactive)
   (find-file user-init-file))
+
+(defun joe/toggle-buffer-mode ()
+  "Toggles the current major mode between actual and fundamental mode. This will act as a way to easily get
+all of the evil keybindings in buffers like magit, without compromises."
+  (interactive)
+  (let ((previous-mode major-mode))
+    (unless (boundp 'joe/buffer-previous-mode)
+      (setq-local joe/buffer-previous-mode major-mode))
+    (if (equal major-mode 'fundamental-mode)
+        (funcall joe/buffer-previous-mode)
+        (progn
+          (fundamental-mode)
+          (setq-local joe/buffer-previous-mode previous-mode)))))
 
 (require 'package)
 (setq package-archives
@@ -166,6 +179,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (evil-define-key 'normal 'global (kbd "<leader>bi") 'ibuffer)
 (evil-define-key 'normal 'global (kbd "<leader>gg") 'magit-status)
 (evil-define-key 'normal 'global (kbd "<leader>tn") 'tab-new)
+(evil-define-key 'normal 'global (kbd "<leader>m") 'joe/toggle-buffer-mode)
 
 (evil-define-key 'normal 'global (kbd "C-h")  'evil-window-left)
 (evil-define-key 'normal 'global (kbd "C-j")  'evil-window-down)
