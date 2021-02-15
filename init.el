@@ -1,7 +1,3 @@
-;; TODO: Look into this, maybe it's useful
-;; (require 'server)
-;; (if (not (server-running-p)) (server-start))
-
 ;; General Settings
 (setq inhibit-startup-screen t)
 (setq vc-follow-symlinks t)
@@ -48,12 +44,18 @@
 ;; Text Settings
 (setq tab-width 4)
 (setq-default indent-tabs-mode nil)
-(set-default 'truncate-lines nil)
+(set-default 'truncate-lines t)
+(set-default 'truncate-partial-width-windows nil)
 
 (defun joe/edit-init()
   "Edit 'init.el' quickly"
   (interactive)
   (find-file user-init-file))
+
+(defun joe/show-full-path ()
+  "Show the full path file name in the minibuffer."
+  (interactive)
+  (message (buffer-file-name)))
 
 (defun joe/toggle-buffer-mode ()
   "Toggles the current major mode between actual and fundamental mode. This will act as a way to easily get
@@ -100,8 +102,9 @@ all of the evil keybindings in buffers like magit, without compromises."
    '("aaa4c36ce00e572784d424554dcc9641c82d1155370770e231e10c649b59a074" default))
  '(flycheck-color-mode-line-face-to-color 'mode-line-buffer-id)
  '(frame-background-mode 'dark)
+ '(mini-frame-show-parameters '((top . 0.3) (width . 0.8) (left . 0.5)))
  '(package-selected-packages
-   '(ahk-mode magit rainbow-delimiters csharp-mode doom-themes marginalia eglot fsharp-mode selectrum-prescient prescient selectrum avy evil-commentary evil-embrace evil-snipe evil-collection evil-surround undo-tree which-key dashboard))
+   '(fish-mode find-file-in-project helpful mini-frame ahk-mode magit rainbow-delimiters csharp-mode doom-themes marginalia eglot fsharp-mode selectrum-prescient prescient selectrum avy evil-commentary evil-embrace evil-snipe evil-collection evil-surround undo-tree which-key dashboard))
  '(window-divider-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -170,6 +173,11 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (evil-set-leader 'normal (kbd "SPC"))
 (evil-define-key 'normal 'global (kbd "<leader>h")  'help-command)
+(evil-define-key 'normal 'global (kbd "<leader>hf") 'helpful-callable)
+(evil-define-key 'normal 'global (kbd "<leader>hv") 'helpful-variable)
+(evil-define-key 'normal 'global (kbd "<leader>hk") 'helpful-key)
+(evil-define-key 'normal 'global (kbd "<leader>ho") 'helpful-symbol)
+(evil-define-key 'normal 'global (kbd "<leader>hg") 'helpful-at-point)
 (evil-define-key 'normal 'global (kbd "<leader>ff") 'bookmark-jump)
 (evil-define-key 'normal 'global (kbd "<leader>fs") 'save-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>fi") 'joe/edit-init)
@@ -179,7 +187,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (evil-define-key 'normal 'global (kbd "<leader>bi") 'ibuffer)
 (evil-define-key 'normal 'global (kbd "<leader>gg") 'magit-status)
 (evil-define-key 'normal 'global (kbd "<leader>tn") 'tab-new)
-(evil-define-key 'normal 'global (kbd "<leader>m") 'joe/toggle-buffer-mode)
+(evil-define-key 'normal 'global (kbd "<leader>m")  'joe/toggle-buffer-mode)
 
 (evil-define-key 'normal 'global (kbd "C-h")  'evil-window-left)
 (evil-define-key 'normal 'global (kbd "C-j")  'evil-window-down)
@@ -242,6 +250,29 @@ Repeated invocations toggle between the two most recently open buffers."
 (smartparens-global-mode +1)
 (show-paren-mode +1)
 
+(require 'mini-frame)
+(mini-frame-mode)
+
+
+;; Workaround for the initial candidates of mini frame not being shown
+;; https://github.com/raxod502/selectrum/issues/169
+(define-advice fit-frame-to-buffer (:around (f &rest args) dont-skip-ws-for-mini-frame)
+  (cl-letf* ((orig (symbol-function #'window-text-pixel-size))
+            ((symbol-function #'window-text-pixel-size)
+             (lambda (win from to &rest args)
+               (apply orig
+                      (append (list win from
+                                    (if (and (window-minibuffer-p win)
+                                             (frame-root-window-p win)
+                                             (eq t to))
+                                        nil
+                                      to))
+                              args)))))
+    (apply f args)))
+
+;; TODO: Look into this, maybe it's useful
+;; (require 'server)
+;; (if (not (server-running-p)) (server-start))
 
 ;; TODO: Packages to check out
 ;; expand-region
@@ -250,6 +281,7 @@ Repeated invocations toggle between the two most recently open buffers."
 ;; projectile
 ;; Hydra (we can use it for some of the ideas I've had about repeating and arranging stuff)
 ;; CTRLF (figure out if it does anything interesting)
+;; Embark (provides ivy style "actions" on fuzzy searches for selectrum)
 
 ;;    exec-path-from-shell
 ;;    company-quickhelp
