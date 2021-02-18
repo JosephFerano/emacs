@@ -70,6 +70,11 @@ all of the evil keybindings in buffers like magit, without compromises."
           (fundamental-mode)
           (setq-local joe/buffer-previous-mode previous-mode)))))
 
+(defun joe/revert-buffer-no-confirm ()
+    "Revert buffer without confirmation."
+    (interactive)
+    (revert-buffer :ignore-auto :noconfirm))
+
 (require 'package)
 (setq package-archives
     '(("org"       . "http://orgmode.org/elpa/")
@@ -104,7 +109,7 @@ all of the evil keybindings in buffers like magit, without compromises."
  '(frame-background-mode 'dark)
  '(mini-frame-show-parameters '((top . 0.3) (width . 0.8) (left . 0.5)))
  '(package-selected-packages
-   '(fish-mode find-file-in-project helpful mini-frame ahk-mode magit rainbow-delimiters csharp-mode doom-themes marginalia eglot fsharp-mode selectrum-prescient prescient selectrum avy evil-commentary evil-embrace evil-snipe evil-collection evil-surround undo-tree which-key dashboard))
+   '(eglot-fsharp fish-mode find-file-in-project helpful mini-frame ahk-mode magit rainbow-delimiters csharp-mode doom-themes marginalia eglot selectrum-prescient prescient selectrum avy evil-commentary evil-embrace evil-snipe evil-collection evil-surround undo-tree which-key dashboard))
  '(window-divider-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -186,6 +191,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (evil-define-key 'normal 'global (kbd "<leader>bk") 'kill-this-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>bi") 'ibuffer)
 (evil-define-key 'normal 'global (kbd "<leader>gg") 'magit-status)
+(evil-define-key 'normal 'global (kbd "<leader>gr") 'joe/revert-buffer-no-confirm )
 (evil-define-key 'normal 'global (kbd "<leader>tn") 'tab-new)
 (evil-define-key 'normal 'global (kbd "<leader>m")  'joe/toggle-buffer-mode)
 
@@ -269,6 +275,9 @@ Repeated invocations toggle between the two most recently open buffers."
                                       to))
                               args)))))
     (apply f args)))
+
+(require 'find-file-in-project)
+(setq ffip-use-rust-fd 't)
 
 ;; TODO: Look into this, maybe it's useful
 ;; (require 'server)
