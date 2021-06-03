@@ -29,7 +29,7 @@
 
 (setq visible-bell nil ring-bell-function 'joe/flash-mode-line)
 (setq-default display-line-numbers 'relative)
-(dolist (mode '(org-mode-hook term-mode-hook eshell-mode-hook dired-mode-hook shell-mode-hook magit-mode-hook))
+(dolist (mode '(org-mode-hook term-mode-hook vterm-mode-hook eshell-mode-hook dired-mode-hook shell-mode-hook magit-mode-hook))
               (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 (setq scroll-margin 0
@@ -109,7 +109,7 @@ all of the evil keybindings in buffers like magit, without compromises."
  '(frame-background-mode 'dark)
  '(mini-frame-show-parameters '((top . 0.3) (width . 0.8) (left . 0.5)))
  '(package-selected-packages
-   '(eglot-fsharp fish-mode find-file-in-project helpful mini-frame ahk-mode magit rainbow-delimiters csharp-mode doom-themes marginalia eglot selectrum-prescient prescient selectrum avy evil-commentary evil-embrace evil-snipe evil-collection evil-surround undo-tree which-key dashboard))
+   '(vterm eglot-fsharp fish-mode find-file-in-project helpful ahk-mode magit rainbow-delimiters csharp-mode doom-themes marginalia eglot selectrum-prescient prescient selectrum avy evil-commentary evil-embrace evil-snipe evil-collection evil-surround undo-tree which-key dashboard))
  '(window-divider-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -256,9 +256,11 @@ Repeated invocations toggle between the two most recently open buffers."
 (smartparens-global-mode +1)
 (show-paren-mode +1)
 
-(require 'mini-frame)
-(mini-frame-mode)
+;; (require 'mini-frame)
+;; (mini-frame-mode)
 
+(require 'vterm)
+(setq vterm-shell "/bin/fish")
 
 ;; Workaround for the initial candidates of mini frame not being shown
 ;; https://github.com/raxod502/selectrum/issues/169
