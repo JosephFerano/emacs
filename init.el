@@ -109,7 +109,7 @@ all of the evil keybindings in buffers like magit, without compromises."
  '(frame-background-mode 'dark)
  '(mini-frame-show-parameters '((top . 0.3) (width . 0.8) (left . 0.5)))
  '(package-selected-packages
-   '(vterm eglot-fsharp fish-mode find-file-in-project helpful ahk-mode magit rainbow-delimiters csharp-mode doom-themes marginalia eglot selectrum-prescient prescient selectrum avy evil-commentary evil-embrace evil-snipe evil-collection evil-surround undo-tree which-key dashboard))
+   '(all-the-icons-dired all-the-icons ranger org-bullets sudoku vterm select-themes fsharp-mode eglot-fsharp fish-mode find-file-in-project helpful ahk-mode magit rainbow-delimiters csharp-mode doom-themes marginalia eglot selectrum-prescient prescient selectrum avy evil-commentary evil-embrace evil-snipe evil-collection evil-surround undo-tree which-key dashboard))
  '(window-divider-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -122,7 +122,8 @@ all of the evil keybindings in buffers like magit, without compromises."
     (when (not (package-installed-p p))
         (package-install p)))
 
-(load-theme 'doom-moonlight +1)
+(setq custom-safe-themes t)
+(load-theme 'doom-one t)
 
 (setq evil-want-keybinding nil)
 (setq evil-undo-system 'undo-tree)
@@ -137,23 +138,26 @@ all of the evil keybindings in buffers like magit, without compromises."
 (require 'dired)
 (if (eq system-type 'windows-nt)
     (setq ls-lisp-dirs-first t)
-    (setq dired-listing-switches "-al --group-directories-first")
-)
+    (setq dired-listing-switches "-al --group-directories-first"))
+
 (put 'dired-find-alternate-file 'disabled nil)
+
 (defun joe/dired-find-file-other-window ()
     "In Dired, visit this file or directory in another window."
     (interactive)
     (find-file-other-window (dired-get-file-for-visit)))
 (add-hook 'dired-mode-hook
           (lambda ()
-            (evil-define-key 'normal dired-mode-map (kbd "-")
-              (lambda () (interactive) (find-alternate-file "..")))
-            ;; (evil-define-key 'normal dired-mode-map (kbd "SPC")
-            ;;   (lambda () (interactive) (evil-send-leader)))
+            ;; (evil-define-key 'normal dired-mode-map (kbd "j") 'peep-dired-next-file)
+            ;; (evil-define-key 'normal dired-mode-map (kbd "k") 'peep-dired-prev-file)
+            ;; (evil-define-key 'normal dired-mode-map (kbd "-")
+              ;; (lambda () (interactive) (find-alternate-file "..")))
+              ;; (lambda () (interactive) (find-alternate-file "..")))
             (evil-define-key 'normal dired-mode-map (kbd "<return>")
               (lambda () (interactive) (dired-find-alternate-file)))))
 
-(evil-define-key 'normal 'global (kbd "-") 'dired-jump)
+;; (evil-define-key 'normal 'global (kbd "-") 'dired-jump)
+(evil-define-key 'normal 'global (kbd "-") 'ranger)
 
 (require 'dashboard)
 (dashboard-setup-startup-hook)
@@ -168,9 +172,12 @@ all of the evil keybindings in buffers like magit, without compromises."
   "<leader>d" '("Dired")
   "<leader>g" '("Git")
   "<leader>t" '("Tabs")
+  "<leader>p" '("Packages")
   "<leader>h" '("Help"))
 
 (evil-set-leader 'normal (kbd "SPC"))
+(evil-define-key 'normal 'global (kbd "<leader>w")  'save-buffer)
+(evil-define-key 'normal 'global (kbd "<leader>q")  'kill-buffer-and-window)
 (evil-define-key 'normal 'global (kbd "<leader>h")  'help-command)
 (evil-define-key 'normal 'global (kbd "<leader>hf") 'helpful-callable)
 (evil-define-key 'normal 'global (kbd "<leader>hv") 'helpful-variable)
@@ -178,16 +185,19 @@ all of the evil keybindings in buffers like magit, without compromises."
 (evil-define-key 'normal 'global (kbd "<leader>ho") 'helpful-symbol)
 (evil-define-key 'normal 'global (kbd "<leader>hg") 'helpful-at-point)
 (evil-define-key 'normal 'global (kbd "<leader>ff") 'bookmark-jump)
-(evil-define-key 'normal 'global (kbd "<leader>fs") 'save-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>fi") 'joe/edit-init)
 (evil-define-key 'normal 'global (kbd "<leader>bb") 'mode-line-other-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>bl") 'switch-to-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>bk") 'kill-this-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>bi") 'ibuffer)
+(evil-define-key 'normal 'global (kbd "<leader>bm") 'joe/toggle-buffer-mode)
 (evil-define-key 'normal 'global (kbd "<leader>gg") 'magit-status)
 (evil-define-key 'normal 'global (kbd "<leader>gr") 'joe/revert-buffer-no-confirm )
 (evil-define-key 'normal 'global (kbd "<leader>tn") 'tab-new)
-(evil-define-key 'normal 'global (kbd "<leader>m")  'joe/toggle-buffer-mode)
+(evil-define-key 'normal 'global (kbd "<leader>pi") 'package-install)
+(evil-define-key 'normal 'global (kbd "<leader>pd") 'package-delete)
+(evil-define-key 'normal 'global (kbd "<leader>pr") 'package-refresh-contents)
+(evil-define-key 'normal 'global (kbd "<leader>pl") 'package-list-packages)
 
 (evil-define-key 'normal 'global (kbd "C-h") 'evil-window-left)
 (evil-define-key 'normal 'global (kbd "C-j") 'evil-window-down)
@@ -196,6 +206,41 @@ all of the evil keybindings in buffers like magit, without compromises."
 (evil-define-key 'normal 'global (kbd "M-l") 'tab-next)
 (evil-define-key 'normal 'global (kbd "M-h") 'tab-previous)
 
+;; TODO figure out how to create these kinds of aliases
+;; (evil-define-key 'normal 'global (kbd "<leader>gg") 'magit-status)
+
+;; abbr -a -g ga     "git add"
+;; abbr -a -g gch    "git checkout"
+;; abbr -a -g gchm   "git checkout master"
+;; abbr -a -g gchb   "git checkout -b"
+;; abbr -a -g gd     "git diff"
+;; abbr -a -g gdh    "git diff HEAD"
+;; abbr -a -g gm     "git merge"
+;; abbr -a -g gms    "git merge --squash"
+;; abbr -a -g gb     "git branch"
+;; abbr -a -g gba    "git branch -a"
+;; abbr -a -g gf     "git fetch"
+;; abbr -a -g gr     "git rebase"
+;; abbr -a -g gc     "git commit"
+;; abbr -a -g gcm    "git commit -m"
+;; abbr -a -g gcau   "git commit --author"
+;; abbr -a -g gcam   "git commit -am"
+;; abbr -a -g ga     "git add"
+;; abbr -a -g gaa    "git add -A"
+;; abbr -a -g gpl    "git pull"
+;; abbr -a -g gp     "git push"
+;; abbr -a -g gpd    "git push -d origin"
+;; abbr -a -g gpu    "git push -u origin"
+;; abbr -a -g gpr    "git remote prune origin"
+;; abbr -a -g grh    "git reset --hard"
+;; abbr -a -g gcl    "git clean -fd"
+;; abbr -a -g gst    "git stash"
+;; abbr -a -g gsl    "git stash list"
+;; abbr -a -g gsp    "git stash pop"
+;; abbr -a -g gsu    "git submodule update"
+;; abbr -a -g glom   "git lop -10 origin/master"
+;; abbr -a -g gmom   "git merge origin/master"
+;; abbr -a -g gmm    "git merge master"
 
 (defvar global-evil-leader-map (make-sparse-keymap))
 (evil-define-key 'normal 'global-evil-leader-map (kbd "SPC") 'evil-send-leader)
@@ -226,6 +271,12 @@ all of the evil keybindings in buffers like magit, without compromises."
 (define-key avy-map "w" #'avy-goto-word-0-below)
 (define-key avy-map "c" #'avy-goto-char-timer)
 
+(require 'org-bullets)
+(defun joe/org-mode-setup ()
+    (org-bullets-mode)
+    (org-indent-mode))
+(add-hook 'org-mode-hook 'joe/org-mode-setup)
+
 (require 'selectrum)
 (require 'prescient)
 (selectrum-mode +1)
@@ -237,7 +288,7 @@ all of the evil keybindings in buffers like magit, without compromises."
 (setq marginalia-annotators
       '(marginalia-annotators-heavy marginalia-annotators-light nil))
 
-(setq recentf-max-menu-items 100)
+(setq recentf-max-menu-items 1000)
 (defun joe/recentf-open-files ()
   "Use `completing-read' to open a recent file."
   (interactive)
@@ -251,10 +302,22 @@ all of the evil keybindings in buffers like magit, without compromises."
 (show-paren-mode +1)
 
 ;; (require 'mini-frame)
+;; (setq mini-frame-show-parameters
+;;       '((top . 0.3) (width . 0.7)
+;;         (left . 0.5) (left-fringe . 10) (right-fringe . 10) ))
+;; (setq mini-frame-color-shift-step 25)
+
+;; (setq mini-frame-internal-border-color "dark")
 ;; (mini-frame-mode)
 
 (require 'vterm)
 (setq vterm-shell "/bin/fish")
+
+(require 'eglot)
+(require 'eglot-fsharp)
+
+(require 'ranger)
+(setq ranger-show-literal nil)
 
 ;; Workaround for the initial candidates of mini frame not being shown
 ;; https://github.com/raxod502/selectrum/issues/169
