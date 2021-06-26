@@ -155,12 +155,6 @@ all of the evil keybindings in buffers like magit, without compromises."
 
 (evil-define-key 'normal 'global (kbd "-") 'dired-jump)
 
-(defun joe/switch-to-previous-buffer ()
-  "Switch to previously open buffer.
-Repeated invocations toggle between the two most recently open buffers."
-  (interactive)
-  (switch-to-buffer (other-buffer (current-buffer) 1)))
-
 (require 'dashboard)
 (dashboard-setup-startup-hook)
 
@@ -186,7 +180,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (evil-define-key 'normal 'global (kbd "<leader>ff") 'bookmark-jump)
 (evil-define-key 'normal 'global (kbd "<leader>fs") 'save-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>fi") 'joe/edit-init)
-(evil-define-key 'normal 'global (kbd "<leader>bb") 'joe/switch-to-previous-buffer)
+(evil-define-key 'normal 'global (kbd "<leader>bb") 'mode-line-other-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>bl") 'switch-to-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>bk") 'kill-this-buffer)
 (evil-define-key 'normal 'global (kbd "<leader>bi") 'ibuffer)
@@ -195,12 +189,12 @@ Repeated invocations toggle between the two most recently open buffers."
 (evil-define-key 'normal 'global (kbd "<leader>tn") 'tab-new)
 (evil-define-key 'normal 'global (kbd "<leader>m")  'joe/toggle-buffer-mode)
 
-(evil-define-key 'normal 'global (kbd "C-h")  'evil-window-left)
-(evil-define-key 'normal 'global (kbd "C-j")  'evil-window-down)
-(evil-define-key 'normal 'global (kbd "C-k")  'evil-window-up)
-(evil-define-key 'normal 'global (kbd "C-l")  'evil-window-right)
-(evil-define-key 'normal 'global (kbd "M-h")  'tab-next)
-(evil-define-key 'normal 'global (kbd "M-l")  'tab-previous)
+(evil-define-key 'normal 'global (kbd "C-h") 'evil-window-left)
+(evil-define-key 'normal 'global (kbd "C-j") 'evil-window-down)
+(evil-define-key 'normal 'global (kbd "C-k") 'evil-window-up)
+(evil-define-key 'normal 'global (kbd "C-l") 'evil-window-right)
+(evil-define-key 'normal 'global (kbd "M-l") 'tab-next)
+(evil-define-key 'normal 'global (kbd "M-h") 'tab-previous)
 
 
 (defvar global-evil-leader-map (make-sparse-keymap))
